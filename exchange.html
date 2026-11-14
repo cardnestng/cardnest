@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARDNEST - Exchange Request</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f3f6f7;color:#172235;padding:20px}
+.container{max-width:480px;margin:30px auto;background:white;padding:25px;border-radius:14px}
+h1{text-align:center;color:#101b2d}
+p{text-align:center;color:#64748b}
+label{display:block;margin-top:18px;font-weight:bold}
+input,select{width:100%;padding:14px;margin-top:8px;border:1px solid #ccd3dc;border-radius:8px;font-size:16px}
+button{width:100%;padding:15px;background:#101b2d;color:white;border:0;border-radius:8px;margin-top:22px;font-size:16px;font-weight:bold}
+#message{margin-top:18px;text-align:center}
+a{color:#1764a5}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>CARDNEST</h1>
+<p>Your cards. Your value.</p>
+<h2>Submit Exchange Request</h2>
+<p>Choose your gift card and enter its amount.</p>
+
+<div id="loginNotice" style="display:none;text-align:center">
+<p>Please log in before submitting a request.</p>
+<a href="auth.html">Go to Login</a>
+</div>
+
+<form id="exchangeForm" style="display:none">
+<label>Gift Card</label>
+<select id="giftCard" required>
+<option value="">Choose gift card</option>
+<option>Apple</option>
+<option>Amazon</option>
+<option>Steam</option>
+<option>Google Play</option>
+<option>Xbox</option>
+<option>Razer Gold</option>
+</select>
+
+<label>Currency</label>
+<select id="currency" required>
+<option value="">Choose currency</option>
+<option>USD</option>
+<option>GBP</option>
+<option>EUR</option>
+</select>
+
+<label>Card Amount</label>
+<input id="amount" type="number" min="1" step="0.01" placeholder="Enter amount" required>
+
+<p style="font-size:13px">This is a request only. CARDNEST will review it manually. Do not submit gift card codes or PINs.</p>
+
+<button type="submit" id="submitButton">Submit Request</button>
+</form>
+
+<div id="message"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://etyxxaepowlcwsdiuabp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_lxcb_7ZLFNA34S7UxP1sxw_TBbumrU0";
+
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function checkLogin(){
+  const {data:{session}} = await client.auth.getSession();
+
+  if(session){
+    document.getElementById("exchangeForm").style.display = "block";
+    document.getElementById("loginNotice").style.display = "none";
+  } else {
+    document.getElementById("exchangeForm").style.display = "none";
+    document.getElementById("loginNotice").style.display = "block";
+  }
+}
+
+checkLogin();
+
+document.getElementById("exchangeForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  const button = document.getElementById("submitButton");
+  const message = document.getElementById("message");
+
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  message.textContent = "";
+
+  const {data:{user}} = await client.auth.getUser();
+
+  if(!user){
+    message.textContent = "Please log in again.";
+    button.disabled = false;
+    button.textContent = "Submit Request";
+    return;
+  }
+
+  const {error} = await client
+    .from("exchange_requests")
+    .insert({
+      user_id: user.id,
+      gift_card: document.getElementById("giftCard").value,
+      currency: document.getElementById("currency").value,
+      amount: Number(document.getElementById("amount").value)
+    });
+
+  if(error){
+    message.textContent = "Request failed: " + error.message;
+  } else {
+    message.textContent = "Your request has been submitted for manual review!";
+    document.getElementById("exchangeForm").reset();
+  }
+
+  button.disabled = false;
+  button.textContent = "Submit Request";
+});
+</script>
+</body>
+</html>
