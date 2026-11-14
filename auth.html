@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARDNEST - Customer Account</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6f7;color:#172235;padding:20px}
+main{max-width:420px;margin:45px auto;background:white;padding:25px;border-radius:15px}
+.logo{font-size:28px;font-weight:bold;color:#101b2d}
+.logo span{color:#20b486}
+h2{margin-top:25px}
+input{width:100%;padding:14px;margin:9px 0;border:1px solid #d5dce3;border-radius:8px;font-size:16px}
+button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:8px;background:#20b486;color:white;font-size:16px;font-weight:bold}
+.secondary{background:#101b2d}
+#message{line-height:1.5;margin-top:15px;font-size:14px}
+.hidden{display:none}
+small{color:#64748b}
+</style>
+</head>
+<body>
+<main>
+<div class="logo">CARD<span>NEST</span></div>
+<small>Your cards. Your value.</small>
+
+<section id="account">
+<h2>Create your account</h2>
+<form id="signup">
+<input id="signupEmail" type="email" placeholder="Email address" autocomplete="email" required>
+<input id="signupPassword" type="password" placeholder="Create password (8 characters minimum)" minlength="8" autocomplete="new-password" required>
+<button type="submit">Create account</button>
+</form>
+
+<h2>Already have an account?</h2>
+<form id="login">
+<input id="loginEmail" type="email" placeholder="Email address" autocomplete="email" required>
+<input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+<button class="secondary" type="submit">Log in</button>
+</form>
+</section>
+
+<section id="welcome" class="hidden">
+<h2>Welcome to CARDNEST!</h2>
+<p id="userEmail"></p>
+<button id="logout" class="secondary">Log out</button>
+</section>
+
+<p id="message" role="status"></p>
+</main>
+
+<script>
+const SUPABASE_URL = "https://etyxxaepowlcwsdiuabp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_lxcb_7ZLFNA34S7UxP1sxw_TBbumrU0";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const message = document.getElementById("message");
+const account = document.getElementById("account");
+const welcome = document.getElementById("welcome");
+
+document.getElementById("signup").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  message.textContent = "Creating your account...";
+
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.href.split("?")[0]
+    }
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent = data.session
+    ? "Your account has been created successfully!"
+    : "Account created! Please check your email to confirm your account.";
+});
+
+document.getElementById("login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  message.textContent = "Signing in...";
+
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    message.textContent = error.message;
+  }
+});
+
+document.getElementById("logout").addEventListener("click", async () => {
+  const { error } = await client.auth.signOut();
+  message.textContent = error ? error.message : "You have logged out.";
+});
+
+function showAccount(user) {
+  account.classList.toggle("hidden", !!user);
+  welcome.classList.toggle("hidden", !user);
+
+  if (user) {
+    document.getElementById("userEmail").textContent =
+      "Signed in as " + user.email;
+  }
+}
+
+client.auth.onAuthStateChange((_event, session) => {
+  showAccount(session?.user || null);
+});
+
+client.auth.getSession().then(({ data }) => {
+  showAccount(data.session?.user || null);
+});
+</script>
+</body>
+</html>
