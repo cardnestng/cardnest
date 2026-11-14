@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARDNEST - Gift Card Exchange</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f3f6f7;color:#172235}
+header{background:#101b2d;color:white;padding:28px 20px}
+.logo{font-size:28px;font-weight:bold}
+.logo span{color:#20b486}
+main{max-width:600px;margin:25px auto;padding:15px}
+.card{background:white;padding:22px;border-radius:15px;margin-bottom:18px}
+h2{font-size:20px}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+select,input{width:100%;padding:14px;border:1px solid #ddd;border-radius:9px;font-size:15px}
+button{width:100%;padding:15px;background:#20b486;border:0;border-radius:9px;font-weight:bold;font-size:15px;margin-top:15px}
+.result{background:#eaf8f2;padding:15px;margin-top:15px;border-radius:10px}
+.result strong{font-size:25px;color:#087b58}
+p{line-height:1.6}
+small{color:#687486}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">CARD<span>NEST</span></div>
+<p>Your cards. Your value.</p>
+</header>
+<main>
+<div class="card">
+<h2>Exchange your gift card</h2>
+<label>Choose gift card</label>
+<select id="gift">
+<option>Apple Gift Card</option>
+<option>Amazon Gift Card</option>
+<option>Steam Gift Card</option>
+<option>Google Play Gift Card</option>
+<option>Xbox Gift Card</option>
+<option>Razer Gold</option>
+</select>
+<label>Card currency</label>
+<select id="currency">
+<option value="1450">USD</option>
+<option value="1830">GBP</option>
+<option value="1570">EUR</option>
+</select>
+<label>Card amount</label>
+<input id="amount" type="number" placeholder="Enter amount">
+<div class="result">
+<small>Illustrative estimate only</small>
+<br><strong id="total">₦0</strong>
+</div>
+<button onclick="calculate()">Calculate estimate</button>
+</div>
+<div class="card">
+<h2>How CARDNEST works</h2>
+<p>1. Select your gift card.</p>
+<p>2. Check your estimated value.</p>
+<p>3. Submit a secure exchange request when the platform launches.</p>
+<p>4. Our team manually reviews every transaction.</p>
+</div>
+<div class="card">
+<h2>Coming soon</h2>
+<p>CARDNEST is being developed for customers in Nigeria.</p>
+<p><small>This demonstration does not accept gift card codes, process transactions or make payments.</small></p>
+</div>
+</main>
+<script>
+function calculate(){
+let amount=Number(document.getElementById('amount').value)||0;
+let rate=Number(document.getElementById('currency').value);
+let total=amount*rate*0.72;
+document.getElementById('total').textContent='₦'+Math.round(total).toLocaleString('en-NG');
+}
+</script>
+</body>
+</html>
