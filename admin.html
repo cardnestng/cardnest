@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARDNEST Admin Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6f7;color:#172235}
+header{background:#101b2d;color:white;padding:22px}
+.logo{font-size:25px;font-weight:bold}
+.logo span{color:#20b486}
+header p{color:#cbd5e1}
+main{max-width:850px;margin:20px auto;padding:15px}
+h2{font-size:20px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:white;padding:18px;border-radius:12px;margin-bottom:15px}
+.stat{font-size:25px;font-weight:bold;color:#087b58;margin-top:8px}
+.request{border:1px solid #e2e8f0;padding:15px;border-radius:10px;margin-top:12px}
+.request p{margin:8px 0}
+button{border:0;padding:11px 15px;border-radius:7px;font-weight:bold;margin:8px 5px 0 0}
+.approve{background:#20b486;color:white}
+.reject{background:#fee2e2;color:#991b1b}
+.status{font-weight:bold;color:#b7791f}
+.note{background:#fff7df;padding:14px;border-radius:10px;line-height:1.5}
+small{color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">CARD<span>NEST</span></div>
+<p>Admin Dashboard</p>
+</header>
+<main>
+<div class="note">
+<strong>DEMO DASHBOARD</strong><br>
+This is a demonstration only. It is not connected to real customers, payments or gift card transactions.
+</div>
+<h2>Overview</h2>
+<div class="stats">
+<div class="card"><small>Total requests</small><div class="stat" id="total">3</div></div>
+<div class="card"><small>Pending requests</small><div class="stat" id="pending">3</div></div>
+<div class="card"><small>Approved</small><div class="stat" id="approved">0</div></div>
+<div class="card"><small>Rejected</small><div class="stat" id="rejected">0</div></div>
+</div>
+<div class="card">
+<h2>Exchange Requests</h2>
+<div id="requests"></div>
+</div>
+<div class="card">
+<h2>Admin Notice</h2>
+<p>Every real exchange must be checked and verified before approval.</p>
+<p>Never approve a transaction based only on a screenshot or an unverified claim.</p>
+<small>Real transaction management will require secure login and a backend.</small>
+</div>
+</main>
+<script>
+const requests = [
+{id:1,customer:"Demo Customer 1",gift:"Apple Gift Card",amount:"$100",status:"Pending"},
+{id:2,customer:"Demo Customer 2",gift:"Steam Gift Card",amount:"$50",status:"Pending"},
+{id:3,customer:"Demo Customer 3",gift:"Amazon Gift Card",amount:"$200",status:"Pending"}
+];
+function render(){
+const area=document.getElementById("requests");
+area.innerHTML="";
+requests.forEach(item=>{
+const div=document.createElement("div");
+div.className="request";
+div.innerHTML=`
+<strong>Request #${item.id}</strong>
+<p>Customer: ${item.customer}</p>
+<p>Gift card: ${item.gift}</p>
+<p>Amount: ${item.amount}</p>
+<p>Status: <span class="status">${item.status}</span></p>
+`;
+if(item.status==="Pending"){
+const approve=document.createElement("button");
+approve.className="approve";
+approve.textContent="Approve";
+approve.onclick=()=>update(item.id,"Approved");
+const reject=document.createElement("button");
+reject.className="reject";
+reject.textContent="Reject";
+reject.onclick=()=>update(item.id,"Rejected");
+div.append(approve,reject);
+}
+area.appendChild(div);
+});
+document.getElementById("total").textContent=requests.length;
+document.getElementById("pending").textContent=requests.filter(x=>x.status==="Pending").length;
+document.getElementById("approved").textContent=requests.filter(x=>x.status==="Approved").length;
+document.getElementById("rejected").textContent=requests.filter(x=>x.status==="Rejected").length;
+}
+function update(id,status){
+const item=requests.find(x=>x.id===id);
+if(item){item.status=status;render();}
+}
+render();
+</script>
+</body>
+</html>
